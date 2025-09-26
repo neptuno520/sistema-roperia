@@ -1,36 +1,21 @@
 import express from 'express';
 import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba simple
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: '✅ Backend funcionando',
-    message: 'Conexión exitosa con el frontend',
-    timestamp: new Date().toISOString(),
-    environment: 'development'
-  });
-});
+// Rutas
+app.use('/api/auth', authRoutes);
 
-// Ruta para probar con el frontend
-app.get('/api/products/test', (req, res) => {
-  res.json({
-    products: [
-      { id: 1, name: "Camiseta Básica", price: 25000, stock: 15 },
-      { id: 2, name: "Jeans Clásico", price: 45000, stock: 8 },
-      { id: 3, name: "Zapatos Deportivos", price: 89000, stock: 5 }
-    ],
-    message: "Datos de prueba para el módulo de productos"
-  });
+// Ruta de verificación de servidor
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'Servidor funcionando', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend ejecutándose en: http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 Servidor de autenticación en http://localhost:${PORT}`);
 });

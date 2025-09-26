@@ -1,3 +1,19 @@
+# Archivos de entorno
+.env
+.env.local
+.env.development
+.env.production
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Base de datos (backups)
+*.sql
+*.dump
+
 # Logs
 logs
 *.log

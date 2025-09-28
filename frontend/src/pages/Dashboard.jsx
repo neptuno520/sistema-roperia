@@ -44,7 +44,10 @@ const Dashboard = () => {
               >
                 Gestionar Productos
               </button>
-              <button className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+              <button 
+                onClick={() => navigate('/sales')}
+                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+              >
                 Nueva Venta
               </button>
               <button className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600">

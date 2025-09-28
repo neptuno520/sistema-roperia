@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
+import Sales from './pages/Sales';
 
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
@@ -43,6 +44,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/sales" 
+            element={
+              <ProtectedRoute>
+                <Sales />
+              </ProtectedRoute>
+            } 
+          />          
         </Routes>
       </BrowserRouter>
     </AuthProvider>

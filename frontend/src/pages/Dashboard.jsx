@@ -1,9 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -37,7 +38,10 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold mb-2">Acciones Rápidas</h3>
             <div className="space-y-2">
-              <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+              <button 
+                onClick={() => navigate('/products')}
+                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              >
                 Gestionar Productos
               </button>
               <button className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">

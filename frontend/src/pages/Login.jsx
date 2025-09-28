@@ -50,7 +50,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="admin@tienda.com"
+              placeholder="admin@tiendaropa.com"
               required
             />
           </div>
@@ -79,7 +79,7 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Credenciales de prueba: admin@tienda.com / 123456</p>
+          <p>Credenciales de prueba: admin@tiendaropa.com / 123456</p>
         </div>
       </div>
     </div>

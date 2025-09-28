@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Products from './pages/Products';
 
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
@@ -20,6 +21,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  console.log('🎯 App.jsx se está renderizando'); 
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -30,6 +32,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/products" 
+            element={
+              <ProtectedRoute>
+                <Products />
               </ProtectedRoute>
             } 
           />

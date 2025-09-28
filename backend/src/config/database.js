@@ -9,6 +9,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'faccilan',
   password: process.env.DB_PASSWORD || 'admin', 
   port: process.env.DB_PORT || 5432,
+  client_encoding: 'UTF8'
 });
 
 // Probar la conexión

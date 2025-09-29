@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Sales from './pages/Sales';
+import Inventory from './pages/Inventory';
 
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
@@ -51,7 +52,15 @@ function App() {
                 <Sales />
               </ProtectedRoute>
             } 
-          />          
+          />
+          <Route 
+            path="/inventory" 
+            element={
+              <ProtectedRoute>
+                <Inventory />
+              </ProtectedRoute>
+            } 
+          />                    
         </Routes>
       </BrowserRouter>
     </AuthProvider>

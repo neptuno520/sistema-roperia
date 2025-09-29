@@ -26,10 +26,19 @@ export const Sale = {
           [venta.id_venta, item.id_producto, item.cantidad, item.precio_unitario, item.iva]
         );
         
-        // Actualizar stock del producto
+        //ACTUALIZAR producto.stock
         await client.query(
           'UPDATE producto SET stock = stock - $1 WHERE id_producto = $2',
           [item.cantidad, item.id_producto]
+        );
+        
+        //ACTUALIZAR inventario.stock_disponible  
+        await client.query(
+          `INSERT INTO inventario (id_tienda, id_producto, stock_disponible)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (id_tienda, id_producto) 
+           DO UPDATE SET stock_disponible = inventario.stock_disponible - $3`,
+          [saleData.id_tienda, item.id_producto, item.cantidad]
         );
         
         // Registrar movimiento de stock

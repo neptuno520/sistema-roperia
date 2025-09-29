@@ -152,3 +152,22 @@ SELECT 'Roles: ' || COUNT(*) FROM Rol
 UNION ALL SELECT 'Usuarios: ' || COUNT(*) FROM Usuario
 UNION ALL SELECT 'Productos: ' || COUNT(*) FROM Producto
 UNION ALL SELECT 'Clientes: ' || COUNT(*) FROM Cliente;
+
+/*
+SELECT p.id_producto, p.nombre, p.stock, i.stock_disponible
+FROM producto p
+LEFT JOIN inventario i ON p.id_producto = i.id_producto AND i.id_tienda = 1;
+
+UPDATE producto p 
+SET stock = COALESCE(
+  (SELECT stock_disponible FROM inventario i 
+   WHERE i.id_producto = p.id_producto AND i.id_tienda = 1),
+  stock
+);
+
+INSERT INTO inventario (id_tienda, id_producto, stock_disponible)
+SELECT 1, id_producto, stock 
+FROM producto
+ON CONFLICT (id_tienda, id_producto) 
+DO UPDATE SET stock_disponible = EXCLUDED.stock_disponible;
+*/

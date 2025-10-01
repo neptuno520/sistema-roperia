@@ -85,5 +85,29 @@ getAll: async (tiendaId = null) => {
   getCategories: async () => {
     const result = await pool.query('SELECT * FROM categoriaproducto ORDER BY nombre');
     return result.rows;
+  },
+
+  // Crear inventario para una tienda
+  createInventory: async (tiendaId, productoId, stockInicial = 0) => {
+    const result = await pool.query(`
+      INSERT INTO inventario (id_tienda, id_producto, stock_disponible)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (id_tienda, id_producto) 
+      DO UPDATE SET stock_disponible = $3
+      RETURNING *
+    `, [tiendaId, productoId, stockInicial]);
+    return result.rows[0];
+  },
+
+  // Actualizar inventario de una tienda
+  updateInventory: async (tiendaId, productoId, nuevoStock) => {
+    const result = await pool.query(`
+      INSERT INTO inventario (id_tienda, id_producto, stock_disponible)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (id_tienda, id_producto) 
+      DO UPDATE SET stock_disponible = $3
+      RETURNING *
+    `, [tiendaId, productoId, nuevoStock]);
+    return result.rows[0];
   }
 };

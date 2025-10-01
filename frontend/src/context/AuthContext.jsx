@@ -43,6 +43,11 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       
+      // DEBUG: Ver qué viene exactamente del backend
+      console.log('🔐 DATA COMPLETA del login:', data);
+      console.log('👤 USER OBJECT del login:', data.user);
+      console.log('🏪 ID_TIENDA del user:', data.user?.id_tienda);
+      
       // Guardar en estado y localStorage
       setUser(data.user);
       localStorage.setItem('token', data.token);

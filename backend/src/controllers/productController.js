@@ -2,7 +2,23 @@ import { Product } from '../models/Product.js';
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.getAll();
+    console.log('🔐 [DEBUG] req.user completo:', req.user);
+    console.log('🏪 [DEBUG] req.user.id_tienda:', req.user?.id_tienda);
+    console.log('🔑 [DEBUG] Headers authorization:', req.headers.authorization);
+    
+    // Verificar si el middleware auth está funcionando
+    if (!req.user || !req.user.id_tienda) {
+      console.log('❌ [DEBUG] NO hay user o id_tienda en request');
+      return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+    
+    const userTiendaId = req.user.id_tienda;
+    console.log('✅ [DEBUG] Tienda ID obtenida:', userTiendaId);
+    
+    const products = await Product.getAll(userTiendaId);
+    
+    console.log('📦 [DEBUG] Productos devueltos:', products.length);
+    
     res.json(products);
   } catch (error) {
     console.error('Error getting products:', error);

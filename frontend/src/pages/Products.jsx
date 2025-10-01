@@ -12,6 +12,13 @@ const Products = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const stats = {
+    total_productos: products.length,
+    bajo_stock: products.filter(p => p.stock > 0 && p.stock <= 10).length, // <=10, no <10
+    sin_stock: products.filter(p => p.stock === 0).length,
+    categorias: [...new Set(products.map(p => p.id_categoria))].length
+  };
+
 
   // Cargar productos y categorías al iniciar
   useEffect(() => {
@@ -22,8 +29,24 @@ const Products = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Cargando productos...');
+      
       const response = await productAPI.getProducts();
+      console.log('✅ Productos cargados:', response.data);
+      
       setProducts(response.data);
+      
+      // DEBUG: Verificar stocks
+      const lowStockCount = response.data.filter(p => p.stock > 0 && p.stock <= 10).length;
+      console.log(`📊 Productos con stock bajo (<=10): ${lowStockCount}`);
+      console.log('🔍 Detalle de stocks:', response.data.map(p => ({
+        id: p.id_producto,
+        nombre: p.nombre, 
+        stock: p.stock,
+        color: p.color,
+        talla: p.talla
+      })));
+      
     } catch (error) {
       console.error('Error loading products:', error);
       alert('Error al cargar los productos');
@@ -155,7 +178,7 @@ const Products = () => {
               <div className="bg-white p-6 rounded-lg shadow">
                 <h3 className="text-lg font-semibold text-gray-700">Bajo Stock</h3>
                 <p className="text-3xl font-bold text-yellow-600">
-                  {products.filter(p => p.stock < 10).length}
+                  {products.filter(p => p.stock > 0 && p.stock <= 10).length}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow">

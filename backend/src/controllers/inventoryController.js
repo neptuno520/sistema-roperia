@@ -12,12 +12,12 @@ export const getMovements = async (req, res) => {
 
 export const getLowStock = async (req, res) => {
   try {
-    const minStock = parseInt(req.query.min) || 10;
-    const products = await Inventory.getLowStockProducts(minStock);
+    const { minStock = 10 } = req.query;
+    const userTiendaId = req.user.id_tienda; // ← FILTRAR POR TIENDA
+    const products = await Inventory.getLowStockProducts(minStock, userTiendaId);
     res.json(products);
   } catch (error) {
-    console.error('Error getting low stock:', error);
-    res.status(500).json({ error: 'Error al obtener productos con stock bajo' });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -36,21 +36,27 @@ export const adjustStock = async (req, res) => {
 
 export const getStats = async (req, res) => {
   try {
-    const stats = await Inventory.getInventoryStats();
+    const userTiendaId = req.user.id_tienda; // ← FILTRAR POR TIENDA
+    const stats = await Inventory.getInventoryStats(userTiendaId);
     res.json(stats);
   } catch (error) {
-    console.error('Error getting stats:', error);
-    res.status(500).json({ error: 'Error al obtener estadísticas' });
+    res.status(500).json({ error: error.message });
   }
 };
 
 export const getProductStock = async (req, res) => {
   try {
     const { productId } = req.params;
-    const stock = await Inventory.getCurrentStock(productId);
-    res.json({ stock });
+    const userTiendaId = req.user.id_tienda; // ← OBTENER TIENDA DEL USUARIO
+    
+    const stock = await Inventory.getProductStock(productId, userTiendaId);
+    
+    if (!stock) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+    
+    res.json(stock);
   } catch (error) {
-    console.error('Error getting product stock:', error);
-    res.status(500).json({ error: 'Error al obtener stock del producto' });
+    res.status(500).json({ error: error.message });
   }
 };

@@ -4,71 +4,67 @@ import pool from '../config/database.js';
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    console.log('🔐 [DEBUG] Intento de login para:', email);
-
-    // 1. Buscar usuario por email
-    const userResult = await pool.query(
-      `SELECT u.*, r.nombre as rol, t.nombre as tienda 
+    
+    console.log('🔐 Intento de login para:', email);
+    
+    // CONSULTA DIRECTA a la base de datos (porque no tienes User.js)
+    const result = await pool.query(
+      `SELECT u.*, t.nombre as tienda_nombre 
        FROM usuario u 
-       JOIN rol r ON u.id_rol = r.id_rol 
        JOIN tienda t ON u.id_tienda = t.id_tienda 
        WHERE u.email = $1 AND u.estado = true`,
       [email]
     );
-
-    console.log('📊 Usuarios encontrados:', userResult.rows.length);
-
-    if (userResult.rows.length === 0) {
-      console.log('❌ Usuario no encontrado');
-      return res.status(401).json({ error: 'Credenciales inválidas' });
-    }
-
-    const user = userResult.rows[0];
-
-    // 2. Verificar contraseña
-    console.log('🔑 Comparando contraseñas:');
-    console.log('   Recibida:', password);
-    console.log('   En BD:', user.password_hash);
     
-    if (password !== user.password_hash) {
-      console.log('❌ Contraseña incorrecta');
+    if (result.rows.length === 0) {
+      console.log('❌ Usuario no encontrado:', email);
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    
+    const user = result.rows[0];
+    console.log('👤 Usuario encontrado:', user);
+    
+    // Verificar password (simple por ahora - mejorar con bcrypt después)
+    if (user.password_hash !== password) {
+      console.log('❌ Password incorrecto para:', email);
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    console.log('✅ Login exitoso');
-
-    // 3. Generar token JWT
+    // Crear token INCLUYENDO id_tienda
     const token = jwt.sign(
       { 
         id: user.id_usuario, 
-        email: user.email, 
-        rol: user.rol,
-        tienda: user.tienda 
-      },
-      process.env.JWT_SECRET || 'clave_temporal',
+        email: user.email,
+        id_tienda: user.id_tienda, // ← ESTO ES CRÍTICO
+        id_rol: user.id_rol 
+      }, 
+      process.env.JWT_SECRET, 
       { expiresIn: '24h' }
     );
 
-    // 4. Responder
+    // Respuesta INCLUYENDO id_tienda
+    const userResponse = {
+      id: user.id_usuario,
+      nombre: user.nombre,
+      email: user.email,
+      id_tienda: user.id_tienda, // ← ESTO ES CRÍTICO
+      id_rol: user.id_rol,
+      tienda_nombre: user.tienda_nombre
+    };
+
+    console.log('✅ Login exitoso. User response:', userResponse);
+    
     res.json({
       token,
-      user: {
-        id: user.id_usuario,
-        nombre: user.nombre,
-        email: user.email,
-        rol: user.rol,
-        tienda: user.tienda
-      }
+      user: userResponse
     });
-
+    
   } catch (error) {
     console.error('💥 Error en login:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
 
-// ✅ AGREGAR ESTA FUNCIÓN NUEVA
 export const verifyToken = (req, res) => {
   res.json({ 
     valid: true, 

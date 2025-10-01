@@ -71,17 +71,44 @@ export const Inventory = {
     },
 
   // Obtener productos con stock bajo
-  getLowStockProducts: async (minStock = 10) => {
+getLowStockProducts: async (minStock = 10, tiendaId) => {
     const result = await pool.query(
-      `SELECT p.*, i.stock_disponible, c.nombre as categoria_nombre
-       FROM producto p
-       JOIN inventario i ON p.id_producto = i.id_producto
-       JOIN categoriaproducto c ON p.id_categoria = c.id_categoria
-       WHERE i.stock_disponible <= $1
-       ORDER BY i.stock_disponible ASC`,
-      [minStock]
+      `SELECT 
+        p.*, 
+        i.stock_disponible, 
+        c.nombre as categoria_nombre
+      FROM producto p
+      JOIN inventario i ON p.id_producto = i.id_producto AND i.id_tienda = $2
+      JOIN categoriaproducto c ON p.id_categoria = c.id_categoria
+      WHERE i.stock_disponible <= $1
+      ORDER BY i.stock_disponible ASC`,
+      [minStock, tiendaId]
     );
     return result.rows;
+  },
+
+  // Obtener stock de un producto en una tienda específica
+  getProductStock: async (productId, tiendaId) => {
+    try {
+      const result = await pool.query(
+        `SELECT 
+          p.id_producto,
+          p.nombre,
+          p.stock as stock_general,
+          i.stock_disponible,
+          t.nombre as tienda_nombre
+        FROM producto p
+        LEFT JOIN inventario i ON p.id_producto = i.id_producto AND i.id_tienda = $2
+        LEFT JOIN tienda t ON i.id_tienda = t.id_tienda
+        WHERE p.id_producto = $1`,
+        [productId, tiendaId]
+      );
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error en getProductStock:', error);
+      throw error;
+    }
   },
 
   // Registrar movimiento de stock manual (ajuste)
@@ -128,17 +155,28 @@ export const Inventory = {
   },
 
   // Obtener estadísticas de inventario
-  getInventoryStats: async () => {
+  getInventoryStats: async (tiendaId) => {
     const result = await pool.query(`
       SELECT 
-        COUNT(*) as total_productos,
-        SUM(i.stock_disponible) as total_stock,
-        SUM(p.precio * i.stock_disponible) as valor_total,
-        COUNT(CASE WHEN i.stock_disponible = 0 THEN 1 END) as sin_stock,
-        COUNT(CASE WHEN i.stock_disponible <= 10 THEN 1 END) as stock_bajo
-      FROM inventario i
-      JOIN producto p ON i.id_producto = p.id_producto
-    `);
+        COUNT(DISTINCT p.id_producto) as total_productos,
+        COALESCE(SUM(COALESCE(i.stock_disponible, 0)), 0) as total_stock,
+        COALESCE(SUM(p.precio * COALESCE(i.stock_disponible, 0)), 0) as valor_total,
+        
+        -- Productos con stock bajo (1-10 unidades) Y que existen en inventario
+        COUNT(DISTINCT CASE WHEN i.stock_disponible IS NOT NULL 
+                            AND i.stock_disponible > 0 
+                            AND i.stock_disponible <= 10 
+                            THEN p.id_producto END) as stock_bajo,
+        
+        -- Productos sin stock (0 unidades O no existen en inventario)
+        COUNT(DISTINCT CASE WHEN i.stock_disponible IS NULL 
+                            OR i.stock_disponible = 0 
+                            THEN p.id_producto END) as sin_stock
+        
+      FROM producto p
+      LEFT JOIN inventario i ON p.id_producto = i.id_producto AND i.id_tienda = $1
+    `, [tiendaId]);
+    
     return result.rows[0];
-  }
+  },
 };

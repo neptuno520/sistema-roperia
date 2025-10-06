@@ -18,6 +18,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/purchases', purchaseRoutes);
+
 // Ruta de verificación de servidor
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Servidor funcionando', timestamp: new Date().toISOString() });

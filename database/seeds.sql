@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 INSERT INTO public.categoriaproducto VALUES (1, 'Camisetas', 'Prendas superiores de algodón y mezclilla');
 INSERT INTO public.categoriaproducto VALUES (2, 'Pantalones', 'Jeans, vestir y deportivos');
@@ -200,3 +201,11 @@ SELECT pg_catalog.setval('public.usuario_id_usuario_seq', 6, true);
 SELECT pg_catalog.setval('public.venta_id_venta_seq', 5, true);
 
 
+=======
+insert into Usuario (
+    id_rol, id_tienda, nombre, email, password_hash, estado)
+	values(1, 1, 'Alex', 'alexroap99@gmail.com', '123456', true);
+insert into Rol(nombre) values('Administrador');
+insert into tienda(nombre, direccion, telefono)
+values ('Casa matriz', 'Avda. San José', '+595973890240');
+>>>>>>> Stashed changes

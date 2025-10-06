@@ -39,7 +39,6 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold mb-2">Acciones Rápidas</h3>
             <div className="space-y-2">
-              
               {/* Solo Administrador puede gestionar productos */}
               {user?.id_rol === 1 && (
                 <button 

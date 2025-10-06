@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Sales from './pages/Sales';
 import Inventory from './pages/Inventory';
+import Purchases from './pages/Purchases'; // ← Agrega esta importación
 
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
@@ -60,7 +61,18 @@ function App() {
                 <Inventory />
               </ProtectedRoute>
             } 
-          />                    
+          />
+          {/* ← Agrega esta nueva ruta para Purchases */}
+          <Route 
+            path="/purchases" 
+            element={
+              <ProtectedRoute>
+                <Purchases />
+              </ProtectedRoute>
+            } 
+          />
+          {/* También puedes agregar una ruta por defecto */}
+          <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

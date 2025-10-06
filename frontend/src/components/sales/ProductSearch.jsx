@@ -36,27 +36,40 @@ const ProductSearch = ({ onAddToCart, cartItems }) => {
   };
 
   const handleAddToCart = (product) => {
-    const existingItem = cartItems.find(item => item.id_producto === product.id_producto);
+  console.log('🛒 INICIO handleAddToCart');
+  console.log('📦 Producto:', product);
+  console.log('🎯 onAddToCart existe?', typeof onAddToCart);
+  
+  const existingItem = cartItems.find(item => item.id_producto === product.id_producto);
+  
+  if (existingItem) {
+    console.log('✏️ Actualizando cantidad existente');
+    onAddToCart({
+      ...existingItem,
+      cantidad: existingItem.cantidad + 1
+    });
+  } else {
+    console.log('➕ Agregando nuevo producto');
+    const newItem = {
+      id_producto: product.id_producto,
+      nombre: product.nombre,
+      cantidad: 1,
+      precio_unitario: product.precio,
+      precio: product.precio,
+      iva: product.iva || 10,
+      stock_disponible: product.stock,
+      color: product.color,
+      talla: product.talla
+    };
     
-    if (existingItem) {
-      // Si ya está en el carrito, aumentar cantidad
-      onAddToCart({
-        ...product,
-        cantidad: existingItem.cantidad + 1
-      });
-    } else {
-      // Si no está, agregar nuevo item
-      onAddToCart({
-        ...product,
-        cantidad: 1,
-        precio_unitario: product.precio,
-        stock_disponible: product.stock
-      });
-    }
-    
-    setSearchTerm('');
-    setFilteredProducts([]);
-  };
+    console.log('📤 Item a enviar:', newItem);
+    onAddToCart(newItem);
+  }
+  
+  console.log('✅ handleAddToCart terminado');
+  setSearchTerm('');
+  setFilteredProducts([]);
+};
 
   const getCartQuantity = (productId) => {
     const item = cartItems.find(item => item.id_producto === productId);

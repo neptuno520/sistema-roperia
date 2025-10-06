@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -38,11 +39,12 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold mb-2">Acciones Rápidas</h3>
             <div className="space-y-2">
+              
               {/* Solo Administrador puede gestionar productos */}
               {user?.id_rol === 1 && (
                 <button 
                   onClick={() => navigate('/products')}
-                  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                  className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
                 >
                   Gestionar Productos
                 </button>
@@ -51,7 +53,7 @@ const Dashboard = () => {
               {(user?.id_rol === 1 || user?.id_rol === 2) && (
                 <button 
                   onClick={() => navigate('/sales')}
-                  className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                  className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600"
                 >
                   Nueva Venta
                 </button>
@@ -60,9 +62,18 @@ const Dashboard = () => {
               {(user?.id_rol === 1 || user?.id_rol === 3) && (
                 <button 
                   onClick={() => navigate('/inventory')}
-                  className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600"
+                  className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600"
                 >
                   Gestión de Inventario
+                </button>
+              )}
+              {/* Solo Administrador puede gestionar compras */}
+              {user?.id_rol === 1 && (
+                <button 
+                  onClick={() => navigate('/purchases')}
+                  className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
+                >
+                  Gestión de Compras
                 </button>
               )}
             </div>

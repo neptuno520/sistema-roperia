@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saleAPI } from '../../services/saleAPI';
 import ProductSearch from './ProductSearch';
 import SaleCart from './SaleCart';
+import SaleReceipt from './SaleReceipt';
 
 const SaleForm = ({ onSaleComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -10,7 +11,7 @@ const SaleForm = ({ onSaleComplete }) => {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
   const [loading, setLoading] = useState(false);
-  const [saleSuccess, setSaleSuccess] = useState(false);
+  const [completedSale, setCompletedSale] = useState(null);
 
   useEffect(() => {
     loadClientsAndMethods();
@@ -34,12 +35,10 @@ const SaleForm = ({ onSaleComplete }) => {
       const existingIndex = prev.findIndex(item => item.id_producto === product.id_producto);
       
       if (existingIndex >= 0) {
-        // Actualizar cantidad
         const updated = [...prev];
         updated[existingIndex] = { ...updated[existingIndex], cantidad: product.cantidad };
         return updated;
       } else {
-        // Agregar nuevo item
         return [...prev, product];
       }
     });
@@ -74,73 +73,104 @@ const SaleForm = ({ onSaleComplete }) => {
   };
 
   const handleSubmitSale = async () => {
-    if (cartItems.length === 0) {
-      alert('Agrega productos al carrito antes de realizar la venta');
-      return;
-    }
+  if (cartItems.length === 0) {
+    alert('Agrega productos al carrito antes de realizar la venta');
+    return;
+  }
 
-    if (!selectedPayment) {
-      alert('Selecciona un método de pago');
-      return;
-    }
+  if (!selectedPayment) {
+    alert('Selecciona un método de pago');
+    return;
+  }
 
-    const { total } = calculateTotals();
+  const { total } = calculateTotals();
 
-    try {
-      setLoading(true);
-      
-      const saleData = {
-        id_cliente: selectedClient || null,
-        items: cartItems.map(item => ({
-          id_producto: item.id_producto,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio_unitario,
-          iva: item.iva
-        })),
-        metodo_pago: parseInt(selectedPayment),
-        total: total
-      };
+  try {
+    setLoading(true);
+    
+    const saleData = {
+      id_cliente: selectedClient ? parseInt(selectedClient) : null,
+      items: cartItems.map(item => ({
+        id_producto: item.id_producto,
+        cantidad: item.cantidad,
+        precio_unitario: parseFloat(item.precio_unitario),
+        iva: parseFloat(item.iva || 0)
+      })),
+      metodo_pago: parseInt(selectedPayment),
+      total: parseFloat(total.toFixed(2))
+    };
 
-      await saleAPI.createSale(saleData);
-      
-      setSaleSuccess(true);
-      setCartItems([]);
-      setSelectedClient('');
-      setSelectedPayment('');
-      
-      if (onSaleComplete) {
-        onSaleComplete();
-      }
-      
-      setTimeout(() => setSaleSuccess(false), 3000);
-      
-    } catch (error) {
-      console.error('Error creating sale:', error);
-      alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
+    const response = await saleAPI.createSale(saleData);
+    
+    const clienteSeleccionado = selectedClient 
+      ? clients.find(c => c.id_cliente === parseInt(selectedClient))
+      : null;
+    
+    const metodoPagoSeleccionado = paymentMethods.find(
+      m => m.id_metodo === parseInt(selectedPayment)
+    );
+    
+    const ventaId = response.data?.venta?.id_venta || response.data?.id_venta || 1;
+    
+    const saleForPDF = {
+      id_venta: ventaId,
+      fecha: new Date(),
+      total: total,
+      usuario_nombre: 'Vendedor',
+      cliente_nombre: clienteSeleccionado?.nombre || 'Cliente',
+      cliente_apellido: clienteSeleccionado?.apellido || 'General',
+      metodo_pago: metodoPagoSeleccionado?.nombre || 'N/A',
+      detalles: cartItems.map(item => ({
+        producto_nombre: item.nombre || 'Producto',
+        cantidad: item.cantidad,
+        precio_unitario: item.precio_unitario,
+        iva: item.iva || 0
+      }))
+    };
+    
+    // Mostrar modal PRIMERO
+    setCompletedSale(saleForPDF);
+    
+    // NO limpiar el formulario automáticamente
+    // Se limpiará cuando el usuario cierre el modal
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleCloseReceipt = () => {
+  setCompletedSale(null);
+  setCartItems([]);
+  setSelectedClient('');
+  setSelectedPayment('');
+  
+  if (onSaleComplete) {
+    onSaleComplete();
+  }
+};
 
   const { subtotal, iva, total } = calculateTotals();
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      {completedSale && (
+        <SaleReceipt 
+          sale={completedSale} 
+          onClose={handleCloseReceipt}
+        />
+      )}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Nueva Venta</h1>
         <p className="text-gray-600">Procesa una nueva venta en el sistema</p>
       </div>
 
-      {saleSuccess && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-green-800 font-medium">✅ Venta procesada exitosamente</p>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Columna Izquierda - Búsqueda y Carrito */}
         <div className="space-y-6">
-          {/* Búsqueda de Productos */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Buscar Productos</h2>
             <ProductSearch 
@@ -149,7 +179,6 @@ const SaleForm = ({ onSaleComplete }) => {
             />
           </div>
 
-          {/* Carrito */}
           <SaleCart
             cartItems={cartItems}
             onUpdateQuantity={handleUpdateQuantity}
@@ -158,9 +187,7 @@ const SaleForm = ({ onSaleComplete }) => {
           />
         </div>
 
-        {/* Columna Derecha - Información de Venta */}
         <div className="space-y-6">
-          {/* Información del Cliente */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Información del Cliente</h2>
             <select
@@ -177,7 +204,6 @@ const SaleForm = ({ onSaleComplete }) => {
             </select>
           </div>
 
-          {/* Método de Pago */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Método de Pago *</h2>
             <div className="grid grid-cols-2 gap-3">
@@ -197,22 +223,21 @@ const SaleForm = ({ onSaleComplete }) => {
             </div>
           </div>
 
-          {/* Resumen y Acción */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">Resumen de Venta</h2>
             
             <div className="space-y-2 mb-6">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>${subtotal.toLocaleString()}</span>
+                <span>Gs. {subtotal.toLocaleString('es-PY')}</span>
               </div>
               <div className="flex justify-between">
                 <span>IVA:</span>
-                <span>${iva.toLocaleString()}</span>
+                <span>Gs. {iva.toLocaleString('es-PY')}</span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total:</span>
-                <span className="text-green-600">${total.toLocaleString()}</span>
+                <span className="text-green-600">Gs. {total.toLocaleString('es-PY')}</span>
               </div>
             </div>
 
@@ -221,7 +246,7 @@ const SaleForm = ({ onSaleComplete }) => {
               disabled={loading || cartItems.length === 0 || !selectedPayment}
               className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
-              {loading ? 'Procesando Venta...' : `Procesar Venta - $${total.toLocaleString()}`}
+              {loading ? 'Procesando Venta...' : `Procesar Venta - Gs. ${total.toLocaleString('es-PY')}`}
             </button>
 
             {(cartItems.length === 0 || !selectedPayment) && (

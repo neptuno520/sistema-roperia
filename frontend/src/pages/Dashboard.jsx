@@ -1,10 +1,17 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+<<<<<<< Updated upstream
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+=======
+
+const Dashboard = () => {
+  const { user, logout } = useAuth();
+
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -38,6 +45,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-semibold mb-2">Acciones Rápidas</h3>
             <div className="space-y-2">
+<<<<<<< Updated upstream
               {/* Solo Administrador puede gestionar productos */}
               {user?.id_rol === 1 && (
                 <button 
@@ -65,6 +73,17 @@ const Dashboard = () => {
                   Gestión de Inventario
                 </button>
               )}
+=======
+              <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                Gestionar Productos
+              </button>
+              <button className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+                Nueva Venta
+              </button>
+              <button className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-600">
+                Ver Inventario
+              </button>
+>>>>>>> Stashed changes
             </div>
           </div>
 
@@ -79,4 +98,8 @@ const Dashboard = () => {
   );
 };
 
+<<<<<<< Updated upstream
 export default Dashboard;
+=======
+export default Dashboard;
+>>>>>>> Stashed changes

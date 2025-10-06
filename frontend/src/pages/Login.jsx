@@ -50,7 +50,11 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+<<<<<<< Updated upstream
               placeholder="admin@tiendaropa.com"
+=======
+              placeholder="admin@tienda.com"
+>>>>>>> Stashed changes
               required
             />
           </div>
@@ -79,7 +83,11 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
+<<<<<<< Updated upstream
           <p>Credenciales de prueba: admin@tiendaropa.com / 123456</p>
+=======
+          <p>Credenciales de prueba: admin@tienda.com / 123456</p>
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>

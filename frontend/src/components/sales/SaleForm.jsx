@@ -4,7 +4,11 @@ import ProductSearch from './ProductSearch';
 import SaleCart from './SaleCart';
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import SaleReceipt from './SaleReceipt';
+=======
+import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
+>>>>>>> Stashed changes
 =======
 import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
 >>>>>>> Stashed changes
@@ -21,7 +25,12 @@ const SaleForm = ({ onSaleComplete }) => {
   const [loading, setLoading] = useState(false);
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const [completedSale, setCompletedSale] = useState(null);
+=======
+  const [saleCompleted, setSaleCompleted] = useState(false);
+  const [saleData, setSaleData] = useState(null);  
+>>>>>>> Stashed changes
 =======
   const [saleCompleted, setSaleCompleted] = useState(false);
   const [saleData, setSaleData] = useState(null);  
@@ -335,6 +344,15 @@ const SaleForm = ({ onSaleComplete }) => {
     }
   };
 >>>>>>> Stashed changes
+
+  // Función para nueva venta
+  const handleNewSale = () => {
+    setSaleCompleted(false);
+    setSaleData(null);
+    setCartItems([]);
+    setSelectedClient('');
+    setSelectedPayment('');
+  };
 
   // Función para nueva venta
   const handleNewSale = () => {

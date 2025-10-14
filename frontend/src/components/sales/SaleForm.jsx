@@ -2,23 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { saleAPI } from '../../services/saleAPI';
 import ProductSearch from './ProductSearch';
 import SaleCart from './SaleCart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 import SaleReceipt from './SaleReceipt';
-=======
+
 import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
->>>>>>> Stashed changes
-=======
-import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
->>>>>>> Stashed changes
-=======
-import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
->>>>>>> Stashed changes
-=======
-import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
->>>>>>> Stashed changes
 
 const SaleForm = ({ onSaleComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -27,27 +14,10 @@ const SaleForm = ({ onSaleComplete }) => {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
   const [loading, setLoading] = useState(false);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  const [completedSale, setCompletedSale] = useState(null);
-=======
+
   const [saleCompleted, setSaleCompleted] = useState(false);
   const [saleData, setSaleData] = useState(null);  
->>>>>>> Stashed changes
-=======
-  const [saleCompleted, setSaleCompleted] = useState(false);
-  const [saleData, setSaleData] = useState(null);  
->>>>>>> Stashed changes
-=======
-  const [saleCompleted, setSaleCompleted] = useState(false);
-  const [saleData, setSaleData] = useState(null);  
->>>>>>> Stashed changes
-=======
-  const [saleCompleted, setSaleCompleted] = useState(false);
-  const [saleData, setSaleData] = useState(null);  
->>>>>>> Stashed changes
+
 
   useEffect(() => {
     loadClientsAndMethods();
@@ -238,7 +208,6 @@ const SaleForm = ({ onSaleComplete }) => {
 
   const { total } = calculateTotals();
 
-<<<<<<< Updated upstream
   try {
     setLoading(true);
     
@@ -306,53 +275,6 @@ const SaleForm = ({ onSaleComplete }) => {
     onSaleComplete();
   }
 };
-=======
-    try {
-      setLoading(true);
-      
-      const salePayload = {
-        id_cliente: selectedClient || null,
-        items: cartItems.map(item => ({
-          id_producto: item.id_producto,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio,
-          iva: item.iva || 0
-        })),
-        metodo_pago: parseInt(selectedPayment),
-        total: total
-      };
-
-      const response = await saleAPI.createSale(salePayload);
-      
-      // Guardar datos para el comprobante
-      setSaleData({
-        ...response.data,
-        cliente_nombre: selectedClient ? 
-          clients.find(c => c.id_cliente == selectedClient)?.nombre + ' ' + 
-          clients.find(c => c.id_cliente == selectedClient)?.apellido : 
-          'Consumidor Final',
-        detalles: cartItems.map(item => ({
-          producto_nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio_unitario: item.precio,
-          iva: item.iva || 0
-        }))
-      });
-      
-      setSaleCompleted(true);
-      
-      if (onSaleComplete) {
-        onSaleComplete();
-      }
-      
-    } catch (error) {
-      console.error('Error creating sale:', error);
-      alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
->>>>>>> Stashed changes
 
   // Función para nueva venta
   const handleNewSale = () => {
@@ -363,32 +285,7 @@ const SaleForm = ({ onSaleComplete }) => {
     setSelectedPayment('');
   };
 
-  // Función para nueva venta
-  const handleNewSale = () => {
-    setSaleCompleted(false);
-    setSaleData(null);
-    setCartItems([]);
-    setSelectedClient('');
-    setSelectedPayment('');
-  };
 
-  // Función para nueva venta
-  const handleNewSale = () => {
-    setSaleCompleted(false);
-    setSaleData(null);
-    setCartItems([]);
-    setSelectedClient('');
-    setSelectedPayment('');
-  };
-
-  // Función para nueva venta
-  const handleNewSale = () => {
-    setSaleCompleted(false);
-    setSaleData(null);
-    setCartItems([]);
-    setSelectedClient('');
-    setSelectedPayment('');
-  };
 
   const { subtotal, iva, total } = calculateTotals();
 

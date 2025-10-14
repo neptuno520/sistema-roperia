@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { saleAPI } from '../../services/saleAPI';
 import ProductSearch from './ProductSearch';
 import SaleCart from './SaleCart';
+<<<<<<< Updated upstream
 import SaleReceipt from './SaleReceipt';
+=======
+import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
+>>>>>>> Stashed changes
 
 const SaleForm = ({ onSaleComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -11,7 +15,12 @@ const SaleForm = ({ onSaleComplete }) => {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
   const [loading, setLoading] = useState(false);
+<<<<<<< Updated upstream
   const [completedSale, setCompletedSale] = useState(null);
+=======
+  const [saleCompleted, setSaleCompleted] = useState(false);
+  const [saleData, setSaleData] = useState(null);  
+>>>>>>> Stashed changes
 
   useEffect(() => {
     loadClientsAndMethods();
@@ -65,13 +74,130 @@ const SaleForm = ({ onSaleComplete }) => {
   };
 
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
-    const iva = cartItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad * item.iva / 100), 0);
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const iva = cartItems.reduce((sum, item) => sum + (item.precio * item.cantidad * (item.iva || 0) / 100), 0);
     const total = subtotal + iva;
 
     return { subtotal, iva, total };
   };
 
+  // Función para imprimir comprobante
+  const handlePrintReceipt = () => {
+    const receiptElement = document.getElementById('receipt');
+    if (!receiptElement) {
+      console.error('No se encontró el elemento del comprobante');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=600,height=700');
+    
+    // Crear el contenido HTML de forma segura
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Comprobante de Venta - Moda Express</title>
+          <meta charset="utf-8">
+          <style>
+            body { 
+              font-family: 'Arial', sans-serif; 
+              margin: 0;
+              padding: 20px;
+              color: #000;
+              background: white;
+            }
+            .receipt { 
+              max-width: 400px; 
+              margin: 0 auto;
+              border: 1px solid #000;
+              padding: 20px;
+            }
+            .header { 
+              text-align: center; 
+              margin-bottom: 20px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .company-name {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            .document-type {
+              font-size: 16px;
+              font-weight: bold;
+              margin-bottom: 10px;
+            }
+            .product-row { 
+              display: flex; 
+              justify-content: space-between; 
+              margin-bottom: 8px;
+              font-size: 14px;
+              border-bottom: 1px dashed #ccc;
+              padding-bottom: 5px;
+            }
+            .product-name {
+              flex: 2;
+            }
+            .product-price {
+              flex: 1;
+              text-align: right;
+            }
+            .totals { 
+              border-top: 2px solid #000; 
+              padding-top: 10px;
+              margin-top: 15px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 5px;
+            }
+            .grand-total {
+              font-weight: bold;
+              font-size: 18px;
+            }
+            .footer { 
+              text-align: center; 
+              margin-top: 20px;
+              font-size: 12px;
+              color: #666;
+              border-top: 1px solid #ccc;
+              padding-top: 10px;
+            }
+            @media print {
+              body { margin: 0; padding: 10px; }
+              .no-print { display: none !important; }
+              .receipt { border: none; box-shadow: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="receipt">
+            ${receiptElement.innerHTML}
+          </div>
+          <div class="no-print" style="text-align: center; margin-top: 20px;">
+            <button onclick="window.print()" style="padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">🖨️ Imprimir</button>
+            <button onclick="window.close()" style="padding: 10px 20px; margin: 5px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">❌ Cerrar</button>
+          </div>
+          <script>
+            // Auto-imprimir si se desea
+            // window.print();
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Usar document.write de forma segura
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Enfocar la ventana
+    printWindow.focus();
+  };
+
+  // Nueva función para procesar venta con confirmación
   const handleSubmitSale = async () => {
   if (cartItems.length === 0) {
     alert('Agrega productos al carrito antes de realizar la venta');
@@ -85,6 +211,7 @@ const SaleForm = ({ onSaleComplete }) => {
 
   const { total } = calculateTotals();
 
+<<<<<<< Updated upstream
   try {
     setLoading(true);
     
@@ -152,9 +279,77 @@ const SaleForm = ({ onSaleComplete }) => {
     onSaleComplete();
   }
 };
+=======
+    try {
+      setLoading(true);
+      
+      const salePayload = {
+        id_cliente: selectedClient || null,
+        items: cartItems.map(item => ({
+          id_producto: item.id_producto,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio,
+          iva: item.iva || 0
+        })),
+        metodo_pago: parseInt(selectedPayment),
+        total: total
+      };
+
+      const response = await saleAPI.createSale(salePayload);
+      
+      // Guardar datos para el comprobante
+      setSaleData({
+        ...response.data,
+        cliente_nombre: selectedClient ? 
+          clients.find(c => c.id_cliente == selectedClient)?.nombre + ' ' + 
+          clients.find(c => c.id_cliente == selectedClient)?.apellido : 
+          'Consumidor Final',
+        detalles: cartItems.map(item => ({
+          producto_nombre: item.nombre,
+          cantidad: item.cantidad,
+          precio_unitario: item.precio,
+          iva: item.iva || 0
+        }))
+      });
+      
+      setSaleCompleted(true);
+      
+      if (onSaleComplete) {
+        onSaleComplete();
+      }
+      
+    } catch (error) {
+      console.error('Error creating sale:', error);
+      alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> Stashed changes
+
+  // Función para nueva venta
+  const handleNewSale = () => {
+    setSaleCompleted(false);
+    setSaleData(null);
+    setCartItems([]);
+    setSelectedClient('');
+    setSelectedPayment('');
+  };
 
   const { subtotal, iva, total } = calculateTotals();
 
+  // Si la venta está completada, mostrar confirmación
+  if (saleCompleted && saleData) {
+    return (
+      <SaleConfirmation
+        saleData={saleData}
+        onPrint={handlePrintReceipt}
+        onNewSale={handleNewSale}
+      />
+    );
+  }
+
+  // Formulario normal de venta
   return (
     <div className="max-w-6xl mx-auto p-6">
       {completedSale && (

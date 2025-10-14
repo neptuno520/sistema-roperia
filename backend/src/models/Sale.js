@@ -6,10 +6,10 @@ export const Sale = {
     
     try {
       await client.query('BEGIN');
-      console.log('🔹 Transacción iniciada');
+      console.log('Transacción iniciada');
       
       // 1. Insertar la venta
-      console.log('📝 Insertando venta...');
+      console.log('Insertando venta...');
       const saleResult = await client.query(
         `INSERT INTO venta (id_cliente, id_usuario, total) 
          VALUES ($1, $2, $3) RETURNING *`,
@@ -17,10 +17,10 @@ export const Sale = {
       );
       
       const venta = saleResult.rows[0];
-      console.log('✅ Venta insertada, ID:', venta.id_venta);
+      console.log('Venta insertada, ID:', venta.id_venta);
       
       // 2. Insertar detalles de venta y actualizar stock
-      console.log('📦 Procesando items...');
+      console.log('Procesando items...');
       for (const item of saleData.items) {
         console.log(`  - Producto ${item.id_producto}, cantidad: ${item.cantidad}`);
         

@@ -71,28 +71,35 @@ const Purchases = () => {
   };
 
   const updateItemQuantity = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-      removeItem(productId);
-      return;
-    }
-    setPurchaseItems(prev =>
-      prev.map(item =>
-        item.id_producto === productId
-          ? { ...item, cantidad: newQuantity }
-          : item
-      )
-    );
-  };
+  // Validar que newQuantity sea un número válido
+  const quantity = parseInt(newQuantity);
+  if (isNaN(quantity) || quantity < 1) {
+    removeItem(productId);
+    return;
+  }
+  setPurchaseItems(prev =>
+    prev.map(item =>
+      item.id_producto === productId
+        ? { ...item, cantidad: quantity }
+        : item
+    )
+  );
+};
 
-  const updateItemPrice = (productId, newPrice) => {
-    setPurchaseItems(prev =>
-      prev.map(item =>
-        item.id_producto === productId
-          ? { ...item, precio_unitario: parseFloat(newPrice) }
-          : item
-      )
-    );
-  };
+const updateItemPrice = (productId, newPrice) => {
+  // Validar que newPrice sea un número válido
+  const price = parseFloat(newPrice);
+  if (isNaN(price) || price < 0) {
+    return; // No actualizar si no es un número válido
+  }
+  setPurchaseItems(prev =>
+    prev.map(item =>
+      item.id_producto === productId
+        ? { ...item, precio_unitario: price }
+        : item
+    )
+  );
+};
 
   const removeItem = (productId) => {
     setPurchaseItems(prev =>
@@ -107,37 +114,42 @@ const Purchases = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!selectedProvider || purchaseItems.length === 0) {
-      alert('Selecciona un proveedor y agrega productos');
-      return;
-    }
+  e.preventDefault();
+  
+  if (!selectedProvider || purchaseItems.length === 0) {
+    alert('Selecciona un proveedor y agrega productos');
+    return;
+  }
 
-    try {
-      setLoading(true);
-      await purchaseAPI.createPurchase({
-        id_proveedor: parseInt(selectedProvider),
-        id_usuario: user.id_usuario, // Se envía automáticamente el usuario logueado
-        fecha: fecha,
-        items: purchaseItems,
-        total: calculateTotal(),
-        estado: estado
-      });
-      
-      alert('Compra registrada exitosamente');
-      setPurchaseItems([]);
-      setSelectedProvider('');
-      setFecha(new Date().toISOString().split('T')[0]);
-      setEstado('pendiente');
-      setShowForm(false);
-      loadPurchases(); // Recargar la lista de compras
-    } catch (error) {
-      alert('Error: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    
+    console.log('👤 Usuario actual:', user); // Debug
+    
+    await purchaseAPI.createPurchase({
+      id_proveedor: parseInt(selectedProvider),
+      id_usuario: user.id_usuario || user.id, // ✅ CORREGIDO - prueba ambas opciones
+      fecha: fecha,
+      items: purchaseItems,
+      total: calculateTotal(),
+      estado: estado
+    });
+    
+    alert('Compra registrada exitosamente');
+    setPurchaseItems([]);
+    setSelectedProvider('');
+    setFecha(new Date().toISOString().split('T')[0]);
+    setEstado('pendiente');
+    setShowForm(false);
+    loadPurchases();
+  } catch (error) {
+    console.error('Error completo:', error);
+    console.error('Respuesta del servidor:', error.response?.data);
+    alert('Error: ' + (error.response?.data?.error || error.message));
+  } finally {
+    setLoading(false);
+  }
+};
 
   const resetForm = () => {
     setPurchaseItems([]);

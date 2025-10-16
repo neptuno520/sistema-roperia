@@ -235,7 +235,7 @@ const SaleForm = ({ onSaleComplete }) => {
     
     const ventaId = response.data?.venta?.id_venta || response.data?.id_venta || 1;
     
-    const saleForPDF = {
+    const completedSaleData = {
       id_venta: ventaId,
       fecha: new Date(),
       total: total,
@@ -251,12 +251,18 @@ const SaleForm = ({ onSaleComplete }) => {
       }))
     };
     
-    // Mostrar modal PRIMERO
-    setCompletedSale(saleForPDF);
+    // Actualizar estados después de una venta exitosa
+    setSaleData(completedSaleData);
+    setSaleCompleted(true);
     
-    // NO limpiar el formulario automáticamente
-    // Se limpiará cuando el usuario cierre el modal
+    // Limpiar el formulario
+    setCartItems([]);
+    setSelectedClient('');
+    setSelectedPayment('');
     
+    if (onSaleComplete) {
+      onSaleComplete(completedSaleData);
+    }
   } catch (error) {
     console.error('Error:', error);
     alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
@@ -266,15 +272,9 @@ const SaleForm = ({ onSaleComplete }) => {
 };
 
   const handleCloseReceipt = () => {
-  setCompletedSale(null);
-  setCartItems([]);
-  setSelectedClient('');
-  setSelectedPayment('');
-  
-  if (onSaleComplete) {
-    onSaleComplete();
-  }
-};
+    setSaleCompleted(false);
+    setSaleData(null);
+  };
 
   // Función para nueva venta
   const handleNewSale = () => {
@@ -303,10 +303,13 @@ const SaleForm = ({ onSaleComplete }) => {
   // Formulario normal de venta
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {completedSale && (
+      {saleCompleted && saleData && (
         <SaleReceipt 
-          sale={completedSale} 
-          onClose={handleCloseReceipt}
+          sale={saleData} 
+          onClose={() => {
+            setSaleCompleted(false);
+            setSaleData(null);
+          }}
         />
       )}
 

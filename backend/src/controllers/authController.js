@@ -6,7 +6,7 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    console.log('🔐 Intento de login para:', email);
+    console.log('Intento de login para:', email);
     
     // CONSULTA DIRECTA a la base de datos (porque no tienes User.js)
     const result = await pool.query(
@@ -18,16 +18,22 @@ export const login = async (req, res) => {
     );
     
     if (result.rows.length === 0) {
-      console.log('❌ Usuario no encontrado:', email);
+      console.log('Usuario no encontrado:', email);
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
     
     const user = result.rows[0];
-    console.log('👤 Usuario encontrado:', user);
+    console.log('Usuario encontrado:', user);
     
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    
+    if (!isValid) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
     // Verificar password (simple por ahora - mejorar con bcrypt después)
     if (user.password_hash !== password) {
-      console.log('❌ Password incorrecto para:', email);
+      console.log('Password incorrecto para:', email);
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
@@ -53,7 +59,7 @@ export const login = async (req, res) => {
       tienda_nombre: user.tienda_nombre
     };
 
-    console.log('✅ Login exitoso. User response:', userResponse);
+    console.log('Login exitoso. User response:', userResponse);
     
     res.json({
       token,
@@ -61,7 +67,7 @@ export const login = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('💥 Error en login:', error);
+    console.error('Error en login:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

@@ -5,7 +5,7 @@ export const Product = {
 // En models/Product.js - VERIFICAR
 // En models/Product.js - DEBUG TEMPORAL
 getAll: async (tiendaId = null) => {
-  console.log('🏪 [MODELO] Product.getAll con tiendaId:', tiendaId);
+  console.log('[MODELO] Product.getAll con tiendaId:', tiendaId);
   
   let query = `
     SELECT 
@@ -25,12 +25,12 @@ getAll: async (tiendaId = null) => {
   query += ` ORDER BY p.id_producto DESC`;
   
   const params = tiendaId ? [tiendaId] : [];
-  console.log('📝 [MODELO] Query ejecutada con params:', params);
+  console.log('[MODELO] Query ejecutada con params:', params);
   
   const result = await pool.query(query, params);
   
   // DEBUG: Mostrar algunos productos y sus stocks
-  console.log('🔍 [MODELO] Muestra de stocks:');
+  console.log('[MODELO] Muestra de stocks:');
   result.rows.slice(0, 5).forEach(row => {
     console.log(`   ${row.nombre}: stock=${row.stock}, stock_real=${row.stock_real}, stock_general=${row.stock_general}`);
   });

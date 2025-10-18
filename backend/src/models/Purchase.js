@@ -7,7 +7,7 @@ export const Purchase = {
     try {
       await client.query('BEGIN');
       
-      console.log('📦 Creando compra con datos:', purchaseData);
+      console.log('Creando compra con datos:', purchaseData);
       
       // Insertar la compra (AGREGADO campo fecha)
       const purchaseResult = await client.query(
@@ -23,11 +23,11 @@ export const Purchase = {
       );
       
       const compra = purchaseResult.rows[0];
-      console.log('✅ Compra insertada:', compra);
+      console.log('Compra insertada:', compra);
       
       // Insertar detalles de compra y actualizar stock
       for (const item of purchaseData.items) {
-        console.log(`  📦 Procesando item: ${item.nombre}`);
+        console.log(`Procesando item: ${item.nombre}`);
         
         // Insertar detalle
         await client.query(
@@ -46,13 +46,13 @@ export const Purchase = {
       }
       
       await client.query('COMMIT');
-      console.log('✅ Compra completada exitosamente');
+      console.log('Compra completada exitosamente');
       
       return compra;
       
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error('❌ Error en Purchase.create:', error);
+      console.error('Error en Purchase.create:', error);
       console.error('Código de error:', error.code);
       console.error('Detalle:', error.detail);
       throw error;

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { saleAPI } from '../../services/saleAPI';
 import ProductSearch from './ProductSearch';
+import ClientSearch from './ClientSearch'; // Importamos el nuevo componente
 import SaleCart from './SaleCart';
+import ThermalReceipt from './ThermalReceipt';
+import toast from 'react-hot-toast';
 
 import SaleReceipt from './SaleReceipt';
 
@@ -9,32 +12,25 @@ import SaleConfirmation from './SaleConfirmation'; // Nuevo componente
 
 const SaleForm = ({ onSaleComplete }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [clients, setClients] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedClient, setSelectedClient] = useState(null); // Cambiado a null
   const [selectedPayment, setSelectedPayment] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [saleCompleted, setSaleCompleted] = useState(false);
-  const [saleData, setSaleData] = useState(null);  
-
+  const [saleData, setSaleData] = useState(null);
 
   useEffect(() => {
-    loadClientsAndMethods();
+    const loadPaymentMethods = async () => {
+      try {
+        const methodsRes = await saleAPI.getPaymentMethods();
+        setPaymentMethods(methodsRes.data);
+      } catch (error) {
+        console.error('Error loading payment methods:', error);
+      }
+    };
+    loadPaymentMethods();
   }, []);
-
-  const loadClientsAndMethods = async () => {
-    try {
-      const [clientsRes, methodsRes] = await Promise.all([
-        saleAPI.getClients(),
-        saleAPI.getPaymentMethods()
-      ]);
-      setClients(clientsRes.data);
-      setPaymentMethods(methodsRes.data);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    }
-  };
 
   const handleAddToCart = (product) => {
     setCartItems(prev => {
@@ -197,12 +193,12 @@ const SaleForm = ({ onSaleComplete }) => {
   // Nueva función para procesar venta con confirmación
   const handleSubmitSale = async () => {
   if (cartItems.length === 0) {
-    alert('Agrega productos al carrito antes de realizar la venta');
+    toast.error('Agrega productos al carrito antes de realizar la venta');
     return;
   }
 
   if (!selectedPayment) {
-    alert('Selecciona un método de pago');
+    toast.error('Selecciona un método de pago');
     return;
   }
 
@@ -212,7 +208,7 @@ const SaleForm = ({ onSaleComplete }) => {
     setLoading(true);
     
     const saleData = {
-      id_cliente: selectedClient ? parseInt(selectedClient) : null,
+      id_cliente: selectedClient ? selectedClient.id_cliente : null,
       items: cartItems.map(item => ({
         id_producto: item.id_producto,
         cantidad: item.cantidad,
@@ -225,9 +221,7 @@ const SaleForm = ({ onSaleComplete }) => {
 
     const response = await saleAPI.createSale(saleData);
     
-    const clienteSeleccionado = selectedClient 
-      ? clients.find(c => c.id_cliente === parseInt(selectedClient))
-      : null;
+    const clienteSeleccionado = selectedClient;
     
     const metodoPagoSeleccionado = paymentMethods.find(
       m => m.id_metodo === parseInt(selectedPayment)
@@ -257,7 +251,7 @@ const SaleForm = ({ onSaleComplete }) => {
     
     // Limpiar el formulario
     setCartItems([]);
-    setSelectedClient('');
+    setSelectedClient(null);
     setSelectedPayment('');
     
     if (onSaleComplete) {
@@ -265,23 +259,19 @@ const SaleForm = ({ onSaleComplete }) => {
     }
   } catch (error) {
     console.error('Error:', error);
-    alert('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
+    toast.error('Error al procesar la venta: ' + (error.response?.data?.error || error.message));
   } finally {
     setLoading(false);
   }
 };
 
-  const handleCloseReceipt = () => {
-    setSaleCompleted(false);
-    setSaleData(null);
-  };
 
   // Función para nueva venta
   const handleNewSale = () => {
     setSaleCompleted(false);
     setSaleData(null);
     setCartItems([]);
-    setSelectedClient('');
+    setSelectedClient(null);
     setSelectedPayment('');
   };
 
@@ -304,7 +294,7 @@ const SaleForm = ({ onSaleComplete }) => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {saleCompleted && saleData && (
-        <SaleReceipt 
+        <ThermalReceipt 
           sale={saleData} 
           onClose={() => {
             setSaleCompleted(false);
@@ -338,19 +328,10 @@ const SaleForm = ({ onSaleComplete }) => {
 
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Información del Cliente</h2>
-            <select
-              value={selectedClient}
-              onChange={(e) => setSelectedClient(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Cliente general (Venta mostrador)</option>
-              {clients.map(client => (
-                <option key={client.id_cliente} value={client.id_cliente}>
-                  {client.nombre} {client.apellido} - {client.documento}
-                </option>
-              ))}
-            </select>
+            <ClientSearch 
+              onClientSelect={setSelectedClient}
+              selectedClient={selectedClient}
+            />
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">

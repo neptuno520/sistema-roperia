@@ -25,11 +25,11 @@ export const login = async (req, res) => {
     const user = result.rows[0];
     console.log('Usuario encontrado:', user);
     
-    const isValid = await bcrypt.compare(password, user.password_hash);
+    /*const isValid = await bcrypt.compare(password, user.password_hash);
     
     if (!isValid) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
-    }
+    }*/
 
     // Verificar password (simple por ahora - mejorar con bcrypt después)
     if (user.password_hash !== password) {

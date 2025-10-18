@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { productAPI } from '../../services/productAPI';
 import { inventoryAPI } from '../../services/inventoryAPI';
+import toast from 'react-hot-toast';
 
 const AdjustmentForm = ({ onAdjustmentComplete }) => {
   const [products, setProducts] = useState([]);
@@ -28,7 +29,7 @@ const AdjustmentForm = ({ onAdjustmentComplete }) => {
       setProducts(response.data);
     } catch (error) {
       console.error('Error loading products:', error);
-      alert('Error al cargar productos');
+      toast.error('Error al cargar productos');
     } finally {
       setProductsLoading(false);
     }
@@ -57,12 +58,12 @@ const AdjustmentForm = ({ onAdjustmentComplete }) => {
     e.preventDefault();
     
     if (!selectedProduct || !cantidad || !motivo) {
-      alert('Por favor completa todos los campos');
+      toast.error('Por favor completa todos los campos');
       return;
     }
 
     if (parseInt(cantidad) === 0) {
-      alert('La cantidad no puede ser cero');
+      toast.error('La cantidad no puede ser cero');
       return;
     }
 
@@ -83,7 +84,7 @@ const AdjustmentForm = ({ onAdjustmentComplete }) => {
       setMotivo('');
       setCurrentStock(0);
       
-      alert('✅ Ajuste de inventario registrado exitosamente');
+      toast.success('Ajuste de inventario registrado exitosamente');
       
       if (onAdjustmentComplete) {
         onAdjustmentComplete();
@@ -91,7 +92,7 @@ const AdjustmentForm = ({ onAdjustmentComplete }) => {
       
     } catch (error) {
       console.error('Error adjusting stock:', error);
-      alert('Error al registrar el ajuste: ' + (error.response?.data?.error || error.message));
+      toast.error('Error al registrar el ajuste: ' + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ export const Inventory = {
   // Obtener movimientos de stock
     getMovements: async (filters = {}) => {
     try {
-        console.log('🔍 [DEBUG] Buscando movimientos...');
+        console.log('[DEBUG] Buscando movimientos...');
         
         let query = `
         SELECT 
@@ -58,14 +58,14 @@ export const Inventory = {
 
         query += ` ORDER BY ms.fecha DESC LIMIT 100`;
 
-        console.log('📝 [DEBUG] Query ejecutada');
+        console.log('[DEBUG] Query ejecutada');
         const result = await pool.query(query, params);
-        console.log('✅ [DEBUG] Movimientos encontrados:', result.rows.length);
-        
+        console.log('[DEBUG] Movimientos encontrados:', result.rows.length);
+
         return result.rows;
 
         } catch (error) {
-            console.error('💥 [DEBUG] Error en getMovements:', error);
+            console.error('[DEBUG] Error en getMovements:', error);
             throw error;
         }
     },

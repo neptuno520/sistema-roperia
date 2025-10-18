@@ -14,5 +14,8 @@ export const saleAPI = {
   getPaymentMethods: () => API.get('/sales/methods'),
   
   // Obtener clientes
-  getClients: () => API.get('/sales/clients')
+  getClients: () => API.get('/sales/clients'),
+
+  // Buscar clientes
+  searchClients: (searchTerm) => API.get(`/sales/clients/search?q=${encodeURIComponent(searchTerm)}`),
 };

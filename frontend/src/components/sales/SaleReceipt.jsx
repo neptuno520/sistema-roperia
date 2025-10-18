@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
 
 const SaleReceipt = ({ sale, onClose }) => {
   console.log('🎯 SaleReceipt renderizado con:', sale);
@@ -28,7 +29,7 @@ const SaleReceipt = ({ sale, onClose }) => {
       
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF');
+      toast.error('Error al generar el PDF');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { purchaseAPI, productAPI } from '../services';
+import toast from 'react-hot-toast';
 
 const Purchases = () => {
   const { user } = useAuth();
@@ -117,7 +118,7 @@ const updateItemPrice = (productId, newPrice) => {
   e.preventDefault();
   
   if (!selectedProvider || purchaseItems.length === 0) {
-    alert('Selecciona un proveedor y agrega productos');
+    toast.error('Selecciona un proveedor y agrega productos');
     return;
   }
 
@@ -134,8 +135,8 @@ const updateItemPrice = (productId, newPrice) => {
       total: calculateTotal(),
       estado: estado
     });
-    
-    alert('Compra registrada exitosamente');
+
+    toast.success('Compra registrada exitosamente');
     setPurchaseItems([]);
     setSelectedProvider('');
     setFecha(new Date().toISOString().split('T')[0]);
@@ -145,7 +146,7 @@ const updateItemPrice = (productId, newPrice) => {
   } catch (error) {
     console.error('Error completo:', error);
     console.error('Respuesta del servidor:', error.response?.data);
-    alert('Error: ' + (error.response?.data?.error || error.message));
+    toast.error('Error: ' + (error.response?.data?.error || error.message));
   } finally {
     setLoading(false);
   }

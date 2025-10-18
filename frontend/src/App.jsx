@@ -9,6 +9,7 @@ import Products from './pages/Products';
 import Sales from './pages/Sales';
 import Inventory from './pages/Inventory';
 import Purchases from './pages/Purchases';
+import Reports from './pages/Reports';
 
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
@@ -26,7 +27,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  console.log('🎯 App.jsx se está renderizando'); 
+  console.log('App component rendering');
   return (
     <div className="App">
       <AuthProvider>
@@ -73,20 +74,19 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/reports" 
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
+          <Toaster />
         </BrowserRouter>
       </AuthProvider>
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-        }}
-      />
     </div>
   );
 }

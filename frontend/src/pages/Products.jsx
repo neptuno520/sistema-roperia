@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { productAPI } from '../services/productAPI';
 import ProductList from '../components/products/ProductList';
 import ProductForm from '../components/products/ProductForm';
+import toast from 'react-hot-toast';
 
 const Products = () => {
   const { user } = useAuth();
@@ -12,13 +13,7 @@ const Products = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
-  const stats = {
-    total_productos: products.length,
-    bajo_stock: products.filter(p => p.stock > 0 && p.stock <= 10).length, // <=10, no <10
-    sin_stock: products.filter(p => p.stock === 0).length,
-    categorias: [...new Set(products.map(p => p.id_categoria))].length
-  };
-
+  
 
   // Cargar productos y categorías al iniciar
   useEffect(() => {
@@ -49,7 +44,7 @@ const Products = () => {
       
     } catch (error) {
       console.error('Error loading products:', error);
-      alert('Error al cargar los productos');
+      toast.error('Error al cargar los productos');
     } finally {
       setLoading(false);
     }
@@ -70,10 +65,10 @@ const Products = () => {
       await productAPI.createProduct(productData);
       await loadProducts(); // Recargar la lista
       setShowForm(false);
-      alert('Producto creado exitosamente');
+      toast.success('Producto creado exitosamente');
     } catch (error) {
       console.error('Error creating product:', error);
-      alert('Error al crear el producto');
+      toast.error('Error al crear el producto');
     } finally {
       setFormLoading(false);
     }
@@ -86,10 +81,10 @@ const Products = () => {
       await loadProducts(); // Recargar la lista
       setEditingProduct(null);
       setShowForm(false);
-      alert('Producto actualizado exitosamente');
+      toast.success('Producto actualizado exitosamente');
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error al actualizar el producto');
+      toast.error('Error al actualizar el producto');
     } finally {
       setFormLoading(false);
     }
@@ -100,10 +95,10 @@ const Products = () => {
       try {
         await productAPI.deleteProduct(productId);
         await loadProducts(); // Recargar la lista
-        alert('Producto eliminado exitosamente');
+        toast.success('Producto eliminado exitosamente');
       } catch (error) {
         console.error('Error deleting product:', error);
-        alert('Error al eliminar el producto');
+        toast.error('Error al eliminar el producto');
       }
     }
   };

@@ -138,6 +138,17 @@ const getSaleDetails = async (id_venta, id_tienda) => {
   };
 };
 
+export const searchClients = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const clients = await Sale.searchClients(q);
+    res.json(clients);
+  } catch (error) {
+    console.error('Error searching clients:', error);
+    res.status(500).json({ error: 'Error al buscar clientes' });
+  }
+};
+
 export const getSales = async (req, res) => {
   try {
     const sales = await Sale.getAll(req.user.id_tienda); // Filtrar por tienda

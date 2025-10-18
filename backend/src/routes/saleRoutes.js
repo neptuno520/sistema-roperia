@@ -17,5 +17,6 @@ router.get('/', getSales);
 router.get('/methods', getPaymentMethods);
 router.get('/clients', getClients);
 router.get('/:id', getSaleById);
+router.get('/clients/search', searchClients);
 
 export default router;

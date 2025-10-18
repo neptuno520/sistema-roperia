@@ -64,21 +64,21 @@ export const Sale = {
       }
       
       // 3. Insertar pago
-      console.log('💳 Insertando pago...');
+      console.log('Insertando pago...');
       await client.query(
         'INSERT INTO pago (id_venta, id_metodo, monto) VALUES ($1, $2, $3)',
         [venta.id_venta, saleData.metodo_pago, saleData.total]
       );
-      console.log('✅ Pago insertado');
+      console.log('Pago insertado');
       
       await client.query('COMMIT');
-      console.log('✅ Transacción confirmada');
-      
+      console.log('Transacción confirmada');
+
       return venta;
       
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error('❌ Error en Sale.create, haciendo ROLLBACK');
+      console.error('Error en Sale.create, haciendo ROLLBACK');
       console.error('Detalle del error:', error.message);
       console.error('Código:', error.code);
       console.error('Stack:', error.stack);
@@ -89,6 +89,21 @@ export const Sale = {
     }
   },
 
+  searchClients: async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+      return [];
+    }
+    
+    const result = await pool.query(
+      `SELECT * FROM cliente 
+      WHERE nombre ILIKE $1 OR apellido ILIKE $1 OR documento ILIKE $1
+      ORDER BY nombre, apellido
+      LIMIT 10`,
+      [`%${searchTerm}%`]
+    );
+    return result.rows;
+  },
+  
   getAll: async () => {
     const result = await pool.query(`
       SELECT v.*, 

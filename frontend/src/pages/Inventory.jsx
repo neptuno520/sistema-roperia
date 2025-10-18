@@ -4,6 +4,7 @@ import { inventoryAPI } from '../services/inventoryAPI';
 import InventoryDashboard from '../components/inventory/InventoryDashboard';
 import MovementList from '../components/inventory/MovementList';
 import AdjustmentForm from '../components/inventory/AdjustmentForm';
+import toast from 'react-hot-toast';
 
 const Inventory = () => {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ const Inventory = () => {
       
     } catch (error) {
       console.error('Error loading inventory data:', error);
-      alert('Error al cargar datos del inventario');
+      toast.error('Error al cargar datos del inventario');
     } finally {
       setLoading(false);
     }
